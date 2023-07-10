@@ -1,0 +1,34 @@
+name: Update WakaTime stats
+
+on:
+  schedule:
+    # Set the interval at which you want to update the stats (e.g., every day)
+    - cron: "0 0 * * *"
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run WakaTime update
+        env:
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+        run: npx wakatime-cli --config .wakatime.cfg stats --output wakatime.md
+
+      - name: Commit and push stats
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "<>"
+          git add wakatime.md
+          git commit -m "Update WakaTime stats"
+          git push
